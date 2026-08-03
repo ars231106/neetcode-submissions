@@ -1,18 +1,26 @@
-class Solution {
+class Solution 
+{
 public:
-    bool wordBreak(string s, vector<string>& wordDict) {
-       unordered_set<string> st(wordDict.begin(), wordDict.end());
-       vector<bool> dp(s.length()+1, false);
-       dp[0] = true;
 
-       for(int i = 1; i<=s.length();i++){
-           for(int j = 0; j<=i-1; j++){
-               if(dp[j] && st.count(s.substr(j, i - j))){
-                   dp[i] = true;
-                   break;
-               }
-           }
-       }
-       return dp[s.length()];
+    int lengthOfLIS(vector<int>& nums) 
+    {
+        int n = nums.size();
+
+        if(n == 0){
+            return 0;
+        }
+ 
+        vector<int> dp(n, 1);
+        int ans = 1;
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j < i; j++){
+                if(nums[j] < nums[i]){
+                    dp[i] = max(dp[i], dp[j] + 1);
+                }
+            }
+            ans = max(ans, dp[i]);
+        }
+
+        return ans;
     }
 };
