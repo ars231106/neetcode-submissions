@@ -1,51 +1,32 @@
 class Solution {
 public:
-    int longestIncreasingPath(vector<vector<int>>& matrix) {
-        if (matrix.empty()) return 0;
+    int minDistance(string word1, string word2) {
+        int m = word1.length();
+        int n = word2.length();
         
-        int rows = matrix.size();
-        int cols = matrix[0].size();
-        unordered_map<int, int> memo; // Map: (row * cols + col) -> length
+        // dp[i][j] = min edits to convert word1[0..i-1] to word2[0..j-1]
+        vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
         
-        int maxLen = 0;
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                maxLen = max(maxLen, dfs(matrix, i, j, memo, cols));
+        // Base cases
+        for (int i = 0; i <= m; i++) dp[i][0] = i;  // Delete all
+        for (int j = 0; j <= n; j++) dp[0][j] = j;  // Insert all
+        
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (word1[i - 1] == word2[j - 1]) {
+                    // No operation needed
+                    dp[i][j] = dp[i - 1][j - 1];
+                } else {
+                    // Insert, Delete, Replace
+                    dp[i][j] = 1 + min({
+                        dp[i][j - 1],      // Insert
+                        dp[i - 1][j],      // Delete
+                        dp[i - 1][j - 1]   // Replace
+                    });
+                }
             }
         }
         
-        return maxLen;
-    }
-    
-private:
-    int dfs(vector<vector<int>>& matrix, int row, int col, unordered_map<int, int>& memo, int cols) {
-        if (row < 0 || row >= matrix.size() || col < 0 || col >= matrix[0].size()) {
-            return 0;
-        }
-        
-        int key = row * cols + col;
-        if (memo.find(key) != memo.end()) {
-            return memo[key];
-        }
-        
-        int current = matrix[row][col];
-        int maxLen = 1;
-        
-        int dirs[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-        
-        for (auto& dir : dirs) {
-            int newRow = row + dir[0];
-            int newCol = col + dir[1];
-            
-            if (newRow >= 0 && newRow < matrix.size() && 
-                newCol >= 0 && newCol < matrix[0].size() && 
-                matrix[newRow][newCol] > current) {
-                
-                maxLen = max(maxLen, 1 + dfs(matrix, newRow, newCol, memo, cols));
-            }
-        }
-        
-        memo[key] = maxLen;
-        return maxLen;
+        return dp[m][n];
     }
 };
